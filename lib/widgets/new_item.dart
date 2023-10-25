@@ -9,6 +9,15 @@ class NewItem extends StatefulWidget {
 }
 
 class _NewItemState extends State<NewItem> {
+  // assigns a global key to save state in the form
+  final _formKey = GlobalKey<FormState>();
+
+// when executing this method all inputs in the form
+//get validated and throw errors if validation fails!
+  void _saveItem() {
+    _formKey.currentState!.validate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,6 +27,7 @@ class _NewItemState extends State<NewItem> {
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               TextFormField(
@@ -41,6 +51,7 @@ class _NewItemState extends State<NewItem> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      keyboardType: TextInputType.number,
                       initialValue: '1',
                       decoration: const InputDecoration(
                         label: Text('Quantity'),
@@ -50,8 +61,10 @@ class _NewItemState extends State<NewItem> {
                             value.isEmpty ||
                             int.tryParse(value) == null ||
                             int.tryParse(value)! <= 0) {
-                          // ! cause flutter does not know about the previous condition that it can't be null
-                          return 'Must be between 1 and 50 characters';
+                          // ! cause flutter does not know
+                          //about the previous condition that it
+                          //can't be null
+                          return 'Must be a valid, positive number!';
                         }
                         return null;
                       },
@@ -94,11 +107,13 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _formKey.currentState!.reset();
+                    },
                     child: const Text('Reset'),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _saveItem,
                     child: const Text('Add Item'),
                   )
                 ],
