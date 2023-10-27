@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
 import 'package:shopping_list/models/category.dart';
+import 'package:shopping_list/models/grocery_item.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -21,19 +20,21 @@ class _NewItemState extends State<NewItem> {
   var _enteredName = '';
   late Category _enteredType = categories[Categories.fruit]!;
   var _enteredQuantity = 1;
-  ShoppingItem? _enteredShoppingItems;
 
 // when executing this method all inputs in the form
 //get validated and throw errors if validation fails!
   void _saveItem() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      _enteredShoppingItems = ShoppingItem(
-        quantity: _enteredQuantity.toString(),
-        name: _enteredName,
-        category: _enteredType,
+
+      Navigator.of(context).pop(
+        GroceryItem(
+          id: DateTime.now().toString(),
+          name: _enteredName,
+          quantity: _enteredQuantity,
+          category: _enteredType,
+        ),
       );
-      inspect(_enteredShoppingItems);
     }
     return;
   }

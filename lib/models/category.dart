@@ -19,15 +19,3 @@ class Category {
   final String category;
   final Color color;
 }
-
-class ShoppingItem {
-  const ShoppingItem({
-    this.quantity = '1',
-    required this.category,
-    required this.name,
-  });
-
-  final String quantity;
-  final Category category;
-  final String name;
-}
