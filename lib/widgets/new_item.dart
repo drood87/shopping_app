@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
+import 'package:shopping_list/models/category.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -8,14 +11,31 @@ class NewItem extends StatefulWidget {
   State<NewItem> createState() => _NewItemState();
 }
 
+// Quantity: String '1',
+// Type: Category Category.fruit
+// Name: String 'Bananas'
+
 class _NewItemState extends State<NewItem> {
   // assigns a global key to save state in the form
   final _formKey = GlobalKey<FormState>();
+  var _enteredName = '';
+  late Category _enteredType = categories[Categories.fruit]!;
+  var _enteredQuantity = 1;
+  ShoppingItem? _enteredShoppingItems;
 
 // when executing this method all inputs in the form
 //get validated and throw errors if validation fails!
   void _saveItem() {
-    _formKey.currentState!.validate();
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      _enteredShoppingItems = ShoppingItem(
+        quantity: _enteredQuantity.toString(),
+        name: _enteredName,
+        category: _enteredType,
+      );
+      inspect(_enteredShoppingItems);
+    }
+    return;
   }
 
   @override
@@ -45,6 +65,9 @@ class _NewItemState extends State<NewItem> {
                   }
                   return null;
                 },
+                onSaved: (value) {
+                  _enteredName = value!;
+                },
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -52,7 +75,7 @@ class _NewItemState extends State<NewItem> {
                   Expanded(
                     child: TextFormField(
                       keyboardType: TextInputType.number,
-                      initialValue: '1',
+                      initialValue: _enteredQuantity.toString(),
                       decoration: const InputDecoration(
                         label: Text('Quantity'),
                       ),
@@ -68,6 +91,9 @@ class _NewItemState extends State<NewItem> {
                         }
                         return null;
                       },
+                      onSaved: (value) {
+                        _enteredQuantity = int.parse(value!);
+                      },
                     ),
                   ),
                   const SizedBox(
@@ -75,6 +101,7 @@ class _NewItemState extends State<NewItem> {
                   ),
                   Expanded(
                     child: DropdownButtonFormField(
+                      value: _enteredType,
                       items: [
                         for (final category in categories.entries)
                           DropdownMenuItem(
@@ -92,7 +119,17 @@ class _NewItemState extends State<NewItem> {
                             ),
                           )
                       ],
-                      onChanged: (value) {},
+                      // the onSaved metod is not necessary there
+                      //as the onChanged method already stores the value
+
+                      // onSaved: (value) {
+                      //   _enteredType = value!;
+                      // },
+                      onChanged: (value) {
+                        setState(() {
+                          _enteredType = value!;
+                        });
+                      },
                       decoration: const InputDecoration(
                         label: Text('Type'),
                       ),
