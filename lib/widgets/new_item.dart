@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -30,14 +32,28 @@ class _NewItemState extends State<NewItem> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      Navigator.of(context).pop(
-        GroceryItem(
-          id: DateTime.now().toString(),
-          name: _enteredName,
-          quantity: _enteredQuantity,
-          category: _enteredType,
-        ),
-      );
+      //The second arguments defines the 'path', usually what comes after the / [slash],
+      //where the data is going to be stored (folder)
+      var url = Uri.https(
+          'flutter-prep-80f29-default-rtdb.europe-west1.firebasedatabase.app',
+          'shopping-list.json');
+
+      http.post(url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'name': _enteredName,
+            'quantity': _enteredQuantity,
+            'category': _enteredType.category,
+          }));
+
+      // Navigator.of(context).pop(
+      //   GroceryItem(
+      //     id: DateTime.now().toString(),
+      //     name: _enteredName,
+      //     quantity: _enteredQuantity,
+      //     category: _enteredType,
+      //   ),
+      // );
     }
     return;
   }
