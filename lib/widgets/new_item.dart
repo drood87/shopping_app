@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
@@ -28,7 +29,7 @@ class _NewItemState extends State<NewItem> {
 
 // when executing this method all inputs in the form
 //get validated and throw errors if validation fails!
-  void _saveItem() {
+  void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -38,24 +39,26 @@ class _NewItemState extends State<NewItem> {
           'flutter-prep-80f29-default-rtdb.europe-west1.firebasedatabase.app',
           'shopping-list.json');
 
-      http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
             'name': _enteredName,
             'quantity': _enteredQuantity,
             'category': _enteredType.category,
-          }));
+          },
+        ),
+      );
 
-      // Navigator.of(context).pop(
-      //   GroceryItem(
-      //     id: DateTime.now().toString(),
-      //     name: _enteredName,
-      //     quantity: _enteredQuantity,
-      //     category: _enteredType,
-      //   ),
-      // );
+      if (!context.mounted) {
+        return;
+      }
+
+      Navigator.of(context).pop();
     }
-    return;
   }
 
   @override
