@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +18,7 @@ class GroceryList extends StatefulWidget {
 class _GroceryListState extends State<GroceryList> {
   List<GroceryItem> _groceryItems = [];
   var _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -28,8 +30,15 @@ class _GroceryListState extends State<GroceryList> {
     final url = Uri.https(
         'flutter-prep-80f29-default-rtdb.europe-west1.firebasedatabase.app',
         'shopping-list.json');
-
     final response = await http.get(url);
+    inspect(response.statusCode); // > 400 error codes
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _error = 'Failed to load data, please try again later.';
+      });
+    }
+
     final Map<String, dynamic> listData = json.decode(response.body);
 
     final List<GroceryItem> loadedItems = [];
@@ -115,6 +124,12 @@ class _GroceryListState extends State<GroceryList> {
             ),
           );
         },
+      );
+    }
+
+    if (_error != null) {
+      content = Center(
+        child: Text(_error!),
       );
     }
 

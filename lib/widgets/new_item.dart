@@ -197,7 +197,7 @@ class _NewItemState extends State<NewItem> {
                         : const Text('Add Item'),
                   )
                 ],
-              )
+              ),
             ],
           ),
         ),
