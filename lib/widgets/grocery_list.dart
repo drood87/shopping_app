@@ -81,10 +81,28 @@ class _GroceryListState extends State<GroceryList> {
     });
   }
 
-  void _removeShoppingItem(GroceryItem item) {
+  void _removeShoppingItem(GroceryItem item) async {
+    final itemIndex = _groceryItems.indexOf(item);
+
     setState(() {
       _groceryItems.remove(item);
     });
+    // we don't need to async/await it as we don't need
+    //to wait for it to be deleted before updating the UI
+    // for error handling and getting the response back
+    // we still need to use async/await
+    final url = Uri.https(
+        'flutter-prep-80f29-default-rtdb.europe-west1.firebasedatabase.app',
+        'shopping-list/${item.id}.json');
+
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      // optional: show error message
+      setState(() {
+        _groceryItems.insert(itemIndex, item);
+      });
+    }
   }
 
   @override
