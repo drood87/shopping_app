@@ -32,7 +32,7 @@ class _GroceryListState extends State<GroceryList> {
     final response = await http.get(url);
     final Map<String, dynamic> listData = json.decode(response.body);
 
-    final List<GroceryItem> _loadedItems = [];
+    final List<GroceryItem> loadedItems = [];
     for (final item in listData.entries) {
       final category = categories.entries
           .firstWhere(
@@ -40,7 +40,7 @@ class _GroceryListState extends State<GroceryList> {
           )
           .value;
 
-      _loadedItems.add(
+      loadedItems.add(
         GroceryItem(
           id: item.key,
           name: item.value['name'],
@@ -49,8 +49,9 @@ class _GroceryListState extends State<GroceryList> {
         ),
       );
     }
+
     setState(() {
-      _groceryItems = _loadedItems;
+      _groceryItems = loadedItems;
     });
   }
 
@@ -61,7 +62,13 @@ class _GroceryListState extends State<GroceryList> {
       ),
     );
 
-    _loadItems();
+    if (newShoppingItem == null) {
+      return;
+    }
+
+    setState(() {
+      _groceryItems.add(newShoppingItem);
+    });
   }
 
   void _removeShoppingItem(GroceryItem item) {
