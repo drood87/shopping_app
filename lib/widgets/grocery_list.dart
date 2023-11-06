@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +16,7 @@ class GroceryList extends StatefulWidget {
 
 class _GroceryListState extends State<GroceryList> {
   List<GroceryItem> _groceryItems = [];
+  var _isLoading = true;
 
   @override
   void initState() {
@@ -52,6 +52,7 @@ class _GroceryListState extends State<GroceryList> {
 
     setState(() {
       _groceryItems = loadedItems;
+      _isLoading = false;
     });
   }
 
@@ -79,44 +80,55 @@ class _GroceryListState extends State<GroceryList> {
 
   @override
   Widget build(BuildContext context) {
+    Widget content = const Center(
+      child: Text(
+        'Such empty, you don\'t need groceries?!',
+        style: TextStyle(fontSize: 16),
+      ),
+    );
+
+    if (_isLoading) {
+      content = const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_groceryItems.isNotEmpty) {
+      content = ListView.builder(
+        itemCount: _groceryItems.length,
+        itemBuilder: (ctx, index) {
+          return Dismissible(
+            onDismissed: (direction) {
+              _removeShoppingItem(_groceryItems[index]);
+            },
+            key: ValueKey(_groceryItems[index].id),
+            child: ListTile(
+              title: Text(_groceryItems[index].name),
+              leading: Container(
+                width: 24,
+                height: 24,
+                color: _groceryItems[index].category.color,
+              ),
+              trailing: Text(
+                _groceryItems[index].quantity.toString(),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Your Groceries'),
-          actions: [
-            IconButton(
-              onPressed: _addItem,
-              icon: const Icon(Icons.add),
-            )
-          ],
-        ),
-        body: _groceryItems.isEmpty
-            ? const Center(
-                child: Text(
-                  'Such empty, you don\'t need groceries?!',
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
-            : ListView.builder(
-                itemCount: _groceryItems.length,
-                itemBuilder: (ctx, index) {
-                  return Dismissible(
-                    onDismissed: (direction) {
-                      _removeShoppingItem(_groceryItems[index]);
-                    },
-                    key: ValueKey(_groceryItems[index].id),
-                    child: ListTile(
-                      title: Text(_groceryItems[index].name),
-                      leading: Container(
-                        width: 24,
-                        height: 24,
-                        color: _groceryItems[index].category.color,
-                      ),
-                      trailing: Text(
-                        _groceryItems[index].quantity.toString(),
-                      ),
-                    ),
-                  );
-                },
-              ));
+      appBar: AppBar(
+        title: const Text('Your Groceries'),
+        actions: [
+          IconButton(
+            onPressed: _addItem,
+            icon: const Icon(Icons.add),
+          )
+        ],
+      ),
+      body: content,
+    );
   }
 }
